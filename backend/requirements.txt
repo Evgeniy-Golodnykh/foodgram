@@ -1,0 +1,10 @@
+Django==3.2.16
+djangorestframework==3.12.4
+djangorestframework-simplejwt==4.7.2
+django-filter==22.1
+requests==2.26.0
+
+flake8==3.9.2
+flake8-broken-line
+flake8-return
+pep8-naming
