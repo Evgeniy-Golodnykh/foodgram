@@ -10,5 +10,5 @@ Python, Django, DRF, Docker, Linux, GitHub Actions
 Evgeniy Golodnykh
 
 ### For review
-login: admin
+login: admin  
 password: admin
