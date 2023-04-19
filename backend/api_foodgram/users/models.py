@@ -14,6 +14,14 @@ class User(AbstractUser):
         unique=True,
         verbose_name='email',
     )
+    first_name = models.CharField(
+        max_length=150,
+        verbose_name='first_name',
+    )
+    last_name = models.CharField(
+        max_length=150,
+        verbose_name='last_name',
+    )
     role = models.CharField(
         max_length=9,
         choices=Roles.choices,
