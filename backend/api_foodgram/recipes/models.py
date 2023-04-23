@@ -146,7 +146,7 @@ class RecipeIngredient(models.Model):
 
 
 class Favorite(models.Model):
-    """Model for selected recipes."""
+    """Model for favorite recipes."""
 
     user = models.ForeignKey(
         User,
