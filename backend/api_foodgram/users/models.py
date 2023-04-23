@@ -3,6 +3,7 @@ from django.db import models
 
 
 class User(AbstractUser):
+    """Custom user model."""
 
     class Roles(models.TextChoices):
 
@@ -40,6 +41,8 @@ class User(AbstractUser):
 
 
 class Follow(models.Model):
+    """Model for following recipe authors."""
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

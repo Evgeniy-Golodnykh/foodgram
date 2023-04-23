@@ -6,6 +6,8 @@ User = get_user_model()
 
 
 class Tag(models.Model):
+    """Tag model."""
+
     name = models.CharField(max_length=200, verbose_name='Name', unique=True)
     color = models.CharField(max_length=7, verbose_name='Color', unique=True)
     slug = models.SlugField(max_length=200, verbose_name='Slug', unique=True)
@@ -20,6 +22,8 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
+    """Ingredient model."""
+
     name = models.CharField(max_length=200, verbose_name='Name')
     measurement_unit = models.CharField(max_length=200, verbose_name='Unit')
 
@@ -33,6 +37,8 @@ class Ingredient(models.Model):
 
 
 class Recipe(models.Model):
+    """Recipe model."""
+
     name = models.CharField(max_length=200, verbose_name='Name', unique=True)
     text = models.TextField(verbose_name='Text')
     cooking_time = models.PositiveSmallIntegerField(
@@ -80,6 +86,8 @@ class Recipe(models.Model):
 
 
 class RecipeTag(models.Model):
+    """Many-to-many model for Recipe and Tag instances."""
+
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
@@ -104,6 +112,8 @@ class RecipeTag(models.Model):
 
 
 class RecipeIngredient(models.Model):
+    """Many-to-many model for Recipe and Ingredient instances."""
+
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
@@ -136,6 +146,8 @@ class RecipeIngredient(models.Model):
 
 
 class Favorite(models.Model):
+    """Model for selected recipes."""
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -162,6 +174,8 @@ class Favorite(models.Model):
 
 
 class Cart(models.Model):
+    """Model for shopping cart."""
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
