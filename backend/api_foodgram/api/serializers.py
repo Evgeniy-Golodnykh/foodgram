@@ -1,46 +1,62 @@
+import base64
+
 from django.contrib.auth import get_user_model
+from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from recipes.models import Cart, Favorite, Ingredient, Recipe, Tag
+from recipes.models import (
+    Cart, Favorite, Ingredient, Recipe, RecipeIngredient, RecipeTag, Tag,
+)
 from users.serializers import CustomUserSerializer
 
 User = get_user_model()
+
+
+class Base64ImageField(serializers.ImageField):
+    def to_internal_value(self, data):
+        if isinstance(data, str) and data.startswith('data:image'):
+            format, imgstr = data.split(';base64,')
+            ext = format.split('/')[-1]
+            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+
+        return super().to_internal_value(data)
 
 
 class TagSerializer(serializers.ModelSerializer):
     """A serializer for Tag instances."""
 
     class Meta:
-        fields = '__all__'
         model = Tag
+        fields = '__all__'
 
 
 class IngredientSerializer(serializers.ModelSerializer):
     """A serializer for Ingredient instances."""
 
     class Meta:
-        fields = '__all__'
         model = Ingredient
+        fields = '__all__'
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    """A serializer for read Recipe instances."""
+    """A serializer to read Recipe instances."""
 
     tags = TagSerializer(many=True, read_only=True)
     ingredients = IngredientSerializer(many=True, read_only=True)
     author = CustomUserSerializer(read_only=True)
+    # is_favorited =
+    # is_in_shopping_cart =
 
     class Meta:
-        fields = '__all__'
         model = Recipe
+        fields = '__all__'
 
 
 class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
-    """A serializer for create/update Recipe instances."""
+    """A serializer to create/update Recipe instances."""
 
-    tags = serializers.SlugRelatedField(
-        slug_field='id',
+    tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects,
         many=True
     )
@@ -49,27 +65,68 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
         queryset=Ingredient.objects,
         many=True
     )
-    author = serializers.SlugRelatedField(
-        slug_field='id',
-        read_only=True,
-        default=serializers.CurrentUserDefault()
-    )
+    image = Base64ImageField(use_url=True, max_length=None)
+    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
-        fields = (
-            'author', 'ingredients', 'tags', 'image',
-            'name', 'text', 'cooking_time'
-        )
         model = Recipe
+        fields = (
+            'ingredients',
+            'tags',
+            'image',
+            'name',
+            'text',
+            'cooking_time'
+        )
 
     def to_representation(self, instance):
         request = self.context.get('request')
         context = {'request': request}
         return RecipeSerializer(instance, context=context).data
 
+    def create(self, validated_data):
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        recipe = Recipe.objects.create(**validated_data)
+        for data in ingredients:
+            ingredient = get_object_or_404(Ingredient, id=data['id'])
+            amount = data['amount']
+            RecipeIngredient.objects.create(
+                recipe=recipe, ingredient=ingredient, amount=amount
+            )
+        for id in tags:
+            tag = get_object_or_404(Tag, id=id)
+            RecipeTag.objects.create(recipe=recipe, tag=tag)
+        return recipe
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.image = validated_data.get('image', instance.image)
+        instance.text = validated_data.get('text', instance.text)
+        instance.cooking_time = validated_data.get(
+            'cooking_time',
+            instance.cooking_time
+        )
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        recipe = get_object_or_404(Recipe, id=instance.id)
+        RecipeIngredient.objects.filter(recipe__id=instance.id).delete()
+        RecipeTag.objects.filter(recipe__id=instance.id).delete()
+        for data in ingredients:
+            ingredient = get_object_or_404(Ingredient, id=data['id'])
+            amount = data['amount']
+            RecipeIngredient.objects.create(
+                recipe=recipe, ingredient=ingredient, amount=amount
+            )
+        for id in tags:
+            tag = get_object_or_404(Tag, id=id)
+            RecipeTag.objects.create(recipe=recipe, tag=tag)
+        instance.save()
+        return instance
+
 
 class CurrentRecipeDefault:
-    """A function to receive recipe id from path parameter."""
+    """A function to receive Recipe ID from path parameter."""
 
     requires_context = True
 
@@ -80,46 +137,32 @@ class CurrentRecipeDefault:
 
 
 class FavoriteOrCartRecipeSerializer(serializers.ModelSerializer):
-    """A serializer for read favorite or cart recipes."""
+    """A serializer to read favorite or cart recipes."""
 
     class Meta:
-        fields = ('id', 'name', 'image', 'cooking_time')
         model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
 
 
-class CreateDestroyFavoriteRecipeSerializer(serializers.ModelSerializer):
-    """A serializer for create/update Favorite instances."""
+class CreateDestroyFavoriteSerializer(serializers.ModelSerializer):
+    """A serializer for create/destroy Favorite instances."""
 
-    author = serializers.SlugRelatedField(
-        slug_field='id',
-        read_only=True,
-        default=serializers.CurrentUserDefault()
-    )
-    recipe = serializers.SlugRelatedField(
-        slug_field='id',
-        read_only=True,
-        default=CurrentRecipeDefault()
-    )
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    recipe = serializers.HiddenField(default=CurrentRecipeDefault())
 
     class Meta:
-        fields = '__all__'
         model = Favorite
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        context = {'request': request}
+        return FavoriteOrCartRecipeSerializer(instance, context=context).data
 
 
-class CreateDestroyCartRecipeSerializer(serializers.ModelSerializer):
-    """A serializer for create/update Cart instances."""
-
-    author = serializers.SlugRelatedField(
-        slug_field='id',
-        read_only=True,
-        default=serializers.CurrentUserDefault()
-    )
-    recipe = serializers.SlugRelatedField(
-        slug_field='id',
-        read_only=True,
-        default=CurrentRecipeDefault()
-    )
+class CreateDestroyCartSerializer(CreateDestroyFavoriteSerializer):
+    """A serializer for create/destroy Cart instances."""
 
     class Meta:
-        fields = '__all__'
         model = Cart
+        fields = '__all__'

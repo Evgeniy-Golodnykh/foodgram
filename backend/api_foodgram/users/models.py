@@ -6,6 +6,7 @@ class User(AbstractUser):
     """Custom user model."""
 
     class Roles(models.TextChoices):
+        """Roles for useer model."""
 
         ADMIN = 'admin'
         USER = 'user'
@@ -24,7 +25,7 @@ class User(AbstractUser):
         verbose_name='Last_name'
     )
     role = models.CharField(
-        max_length=9,
+        max_length=5,
         choices=Roles.choices,
         default=Roles.USER,
         verbose_name='Role'

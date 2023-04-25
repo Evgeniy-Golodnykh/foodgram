@@ -1,12 +1,17 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+
+from .models import Follow
 
 User = get_user_model()
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
     """A serializer to read User instances."""
+
+    # is_subscribed =
 
     class Meta:
         model = User
@@ -16,6 +21,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'username',
             'first_name',
             'last_name',
+            # 'is_subscribed'
         )
 
 
@@ -23,7 +29,9 @@ class CustomUserCreateSerializer(serializers.ModelSerializer):
     """A serializer to create User instances."""
 
     password = serializers.CharField(
-        write_only=True, max_length=150, validators=[validate_password]
+        write_only=True,
+        max_length=150,
+        validators=[validate_password]
     )
 
     class Meta:
@@ -33,6 +41,10 @@ class CustomUserCreateSerializer(serializers.ModelSerializer):
     def validate_username(self, value):
         if value.lower() == 'me':
             raise serializers.ValidationError('Please choose another username')
+        if len(value) > 150:
+            raise serializers.ValidationError(
+                'Username must be less than 150 characters'
+            )
         return value
 
     def create(self, validated_data):
@@ -45,3 +57,51 @@ class CustomUserCreateSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+
+class FollowSerializer(serializers.ModelSerializer):
+    """A serializer to read Followers."""
+
+    # is_subscribed =
+    # recipes =
+    # recipes_count =
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            # 'is_subscribed',
+            # 'recipes',
+            # 'recipes_count',
+        )
+
+
+class CurrentAuthorDefault:
+    """A function to receive Author ID from path parameter."""
+
+    requires_context = True
+
+    def __call__(self, serializer_field):
+        context = serializer_field.context['request'].parser_context
+        return get_object_or_404(
+            User, id=context.get('kwargs').get('user_id'))
+
+
+class CreateDestroyFollowSerializer(serializers.ModelSerializer):
+    """A serializer to create/destroy Follow instances."""
+
+    author = serializers.HiddenField(default=CurrentAuthorDefault())
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = Follow
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        context = {'request': request}
+        return FollowSerializer(instance, context=context).data
