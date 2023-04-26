@@ -11,7 +11,7 @@ User = get_user_model()
 class CustomUserSerializer(serializers.ModelSerializer):
     """A serializer to read User instances."""
 
-    is_subscribed = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
@@ -24,7 +24,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'is_subscribed'
         )
 
-    def is_subscribed(self, obj):
+    def get_is_subscribed(self, obj):
         request = self.context.get('request')
         if request is None or request.user.is_anonymous:
             return False
@@ -85,7 +85,7 @@ class FollowSerializer(serializers.ModelSerializer):
             # 'recipes_count',
         )
 
-    def is_subscribed(self, obj):
+    def get_is_subscribed(self, obj):
         return Follow.objects.filter(author=obj.author, user=obj.user).exists()
 
 
