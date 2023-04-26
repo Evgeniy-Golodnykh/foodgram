@@ -59,7 +59,6 @@ class Recipe(models.Model):
     )
     tag = models.ManyToManyField(
         Tag,
-        through='RecipeTag',
         related_name='recipes',
         verbose_name='Tag'
     )
@@ -83,32 +82,6 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class RecipeTag(models.Model):
-    """Many-to-many model for Recipe and Tag instances."""
-
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        verbose_name='Recipe'
-    )
-    tag = models.ForeignKey(
-        Tag,
-        on_delete=models.CASCADE,
-        verbose_name='Tag'
-    )
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=('recipe', 'tag'),
-                name='unique_recipe_tag'
-            )
-        ]
-
-    def __str__(self):
-        return f'{self.recipe_id} {self.tag_id}'
 
 
 class RecipeIngredient(models.Model):
