@@ -57,16 +57,16 @@ class Recipe(models.Model):
         related_name='recipes',
         verbose_name='Author'
     )
-    tag = models.ManyToManyField(
+    tags = models.ManyToManyField(
         Tag,
         related_name='recipes',
-        verbose_name='Tag'
+        verbose_name='Tags'
     )
-    ingredient = models.ManyToManyField(
+    ingredients = models.ManyToManyField(
         Ingredient,
         through='RecipeIngredient',
         related_name='recipes',
-        verbose_name='Ingredient'
+        verbose_name='Ingredients'
     )
 
     class Meta:
