@@ -5,5 +5,12 @@ from .models import Follow
 
 User = get_user_model()
 
-admin.site.register(User)
+
+class UserAdmin(admin.ModelAdmin):
+    """Custom User admin panel."""
+
+    list_filter = ('email', 'username')
+
+
+admin.site.register(User, UserAdmin)
 admin.site.register(Follow)

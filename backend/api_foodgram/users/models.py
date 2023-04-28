@@ -3,10 +3,10 @@ from django.db import models
 
 
 class User(AbstractUser):
-    """Custom user model."""
+    """Custom User model."""
 
     class Roles(models.TextChoices):
-        """Roles for useer model."""
+        """Roles for custom User model."""
 
         ADMIN = 'admin'
         USER = 'user'

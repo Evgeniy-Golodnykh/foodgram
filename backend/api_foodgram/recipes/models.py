@@ -31,6 +31,12 @@ class Ingredient(models.Model):
         verbose_name = 'Ingredient'
         verbose_name_plural = 'Ingredients'
         ordering = ['name']
+        constraints = [
+            models.UniqueConstraint(
+                fields=('name', 'measurement_unit'),
+                name='unique_ingredient'
+            )
+        ]
 
     def __str__(self):
         return self.name
@@ -145,7 +151,7 @@ class Favorite(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.user} {self.recipe}'
+        return f'{self.recipe}_by_{self.user}'
 
 
 class Cart(models.Model):
@@ -175,4 +181,4 @@ class Cart(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.user} {self.recipe}'
+        return f'{self.recipe}_by_{self.user}'

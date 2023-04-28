@@ -25,5 +25,5 @@ class IsAdminOrAuthorOrReadOnly(permissions.BasePermission):
         return (
             request.method in permissions.SAFE_METHODS
             or request.user.is_admin
-            or request.user.id == obj.author_id
+            or request.user == obj.author
         )
