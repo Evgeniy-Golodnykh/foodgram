@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from .models import Follow
@@ -108,30 +107,3 @@ class FollowSerializer(serializers.ModelSerializer):
 
     def get_recipes_count(self, obj):
         return Recipe.objects.filter(author=obj.author).count()
-
-
-class CurrentAuthorDefault:
-    """A function to receive Author ID from path parameter."""
-
-    requires_context = True
-
-    def __call__(self, serializer_field):
-        context = serializer_field.context['request'].parser_context
-        return get_object_or_404(
-            User, id=context.get('kwargs').get('user_id'))
-
-
-class CreateDestroyFollowSerializer(serializers.ModelSerializer):
-    """A serializer to create/destroy Follow instances."""
-
-    author = serializers.HiddenField(default=CurrentAuthorDefault())
-    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
-
-    class Meta:
-        model = Follow
-        fields = '__all__'
-
-    def to_representation(self, instance):
-        request = self.context.get('request')
-        context = {'request': request}
-        return FollowSerializer(instance, context=context).data
