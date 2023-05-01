@@ -160,44 +160,9 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
         return instance
 
 
-class CurrentRecipeDefault:
-    """A function to receive Recipe ID from path parameter."""
-
-    requires_context = True
-
-    def __call__(self, serializer_field):
-        context = serializer_field.context['request'].parser_context
-        return get_object_or_404(
-            Recipe, id=context.get('kwargs').get('recipe_id'))
-
-
 class FavoriteOrCartRecipeSerializer(serializers.ModelSerializer):
     """A serializer to read favorite or cart recipes."""
 
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
-
-
-class CreateDestroyFavoriteSerializer(serializers.ModelSerializer):
-    """A serializer for create/destroy Favorite instances."""
-
-    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    recipe = serializers.HiddenField(default=CurrentRecipeDefault())
-
-    class Meta:
-        model = Favorite
-        fields = '__all__'
-
-    def to_representation(self, instance):
-        request = self.context.get('request')
-        context = {'request': request}
-        return FavoriteOrCartRecipeSerializer(instance, context=context).data
-
-
-class CreateDestroyCartSerializer(CreateDestroyFavoriteSerializer):
-    """A serializer for create/destroy Cart instances."""
-
-    class Meta:
-        model = Cart
-        fields = '__all__'

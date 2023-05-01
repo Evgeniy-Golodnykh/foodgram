@@ -1,11 +1,13 @@
 from rest_framework import filters, mixins, permissions, viewsets
+from rest_framework.decorators import action
 
 from .permissions import IsAdminOrAuthorOrReadOnly
 from .serializers import (
-    CreateUpdateRecipeSerializer, IngredientSerializer, RecipeSerializer,
-    TagSerializer,
+    CreateUpdateRecipeSerializer, FavoriteOrCartRecipeSerializer,
+    IngredientSerializer, RecipeSerializer, TagSerializer,
 )
-from recipes.models import Ingredient, Recipe, Tag
+from .tools import create_destroy_instances
+from recipes.models import Cart, Favorite, Ingredient, Recipe, Tag
 
 
 class CreateDestroyListViewSet(mixins.CreateModelMixin,
@@ -45,3 +47,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if self.action in ('create', 'partial_update'):
             return CreateUpdateRecipeSerializer
         return RecipeSerializer
+
+    @action(detail=True, methods=['post', 'delete'])
+    def favorite(self, request, pk=None):
+        return create_destroy_instances(
+            Recipe, Favorite, FavoriteOrCartRecipeSerializer, request, pk
+        )
+
+    @action(detail=True, methods=['post', 'delete'])
+    def shopping_cart(self, request, pk=None):
+        return create_destroy_instances(
+            Recipe, Cart, FavoriteOrCartRecipeSerializer, request, pk
+        )

@@ -27,6 +27,8 @@ class CustomUserViewSet(UserViewSet):
     @action(detail=True, methods=['post', 'delete'])
     def subscribe(self, request, id=None):
         author = get_object_or_404(User, id=id)
+        if author == request.user:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         flag = Follow.objects.filter(author=author, user=request.user).exists()
         if request.method == 'DELETE' and flag:
             Follow.objects.filter(author=author, user=request.user).delete()
@@ -34,5 +36,5 @@ class CustomUserViewSet(UserViewSet):
         if request.method == 'POST' and not flag:
             follow = Follow.objects.create(author=author, user=request.user)
             serializer = FollowSerializer(follow)
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_400_BAD_REQUEST)
