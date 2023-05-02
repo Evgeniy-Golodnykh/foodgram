@@ -2,7 +2,7 @@ from datetime import datetime
 
 from django.db import models
 from django.http import HttpResponse
-from rest_framework import filters, mixins, permissions, status, viewsets
+from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -15,13 +15,6 @@ from .tools import create_destroy_instances
 from recipes.models import (
     Cart, Favorite, Ingredient, Recipe, RecipeIngredient, Tag,
 )
-
-
-class CreateDestroyListViewSet(mixins.CreateModelMixin,
-                               mixins.DestroyModelMixin,
-                               mixins.ListModelMixin,
-                               viewsets.GenericViewSet):
-    """Create+Destroy+list mix ViewSet."""
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
