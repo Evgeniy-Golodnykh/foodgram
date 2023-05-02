@@ -67,7 +67,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
             Recipe, Cart, FavoriteOrCartRecipeSerializer, request, pk
         )
 
-    @action(detail=False, methods=['get'])
+    @action(
+        detail=False,
+        methods=['get'],
+        permission_classes=[permissions.IsAuthenticated]
+    )
     def download_shopping_cart(self, request):
         if not request.user.cart.exists():
             return Response(status=status.HTTP_400_BAD_REQUEST)
