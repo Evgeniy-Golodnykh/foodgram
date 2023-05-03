@@ -1,3 +1,5 @@
+'''Managment command to fill the database'''
+
 import logging
 import sys
 from csv import DictReader

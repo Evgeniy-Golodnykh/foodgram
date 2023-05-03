@@ -6,6 +6,7 @@ from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from .filters import RecipeFilter
 from .permissions import IsAdminOrAuthorOrReadOnly
 from .serializers import (
     CreateUpdateRecipeSerializer, FavoriteOrCartRecipeSerializer,
@@ -42,6 +43,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     queryset = Recipe.objects.all()
     permission_classes = (IsAdminOrAuthorOrReadOnly,)
+    filter_class = RecipeFilter
 
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):
@@ -83,7 +85,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             f'{ingredient["ingredient__measurement_unit"]}'
             for ingredient in ingredients
         ])
-        filename = f'Shopping_cart_{datetime.today():%Y-%m-%d %H:%M}.txt'
+        filename = f'Shopping_cart_{datetime.today():%Y-%m-%d_%H:%M}.txt'
         response = HttpResponse(cart, content_type='text/plain')
         response['Content-Disposition'] = f'attachment; filename={filename}'
         return response
