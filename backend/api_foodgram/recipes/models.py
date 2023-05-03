@@ -54,7 +54,7 @@ class Recipe(models.Model):
         verbose_name='Cooking time'
     )
     image = models.ImageField(
-        upload_to='recipes/images/',
+        upload_to='media/images/',
         verbose_name='Image'
     )
     author = models.ForeignKey(
