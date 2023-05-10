@@ -90,8 +90,6 @@ jobs:
             echo DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }} >> .env
             sudo docker-compose pull
             sudo docker-compose up -d
-            sudo docker-compose exec backend python manage.py migrate
-            sudo docker-compose exec backend python manage.py collectstatic --no-input
 
   send_message:
     runs-on: ubuntu-latest
