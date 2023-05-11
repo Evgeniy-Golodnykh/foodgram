@@ -1,23 +1,23 @@
-import django_filters
+from django_filters import rest_framework as filters
 from django_filters.widgets import BooleanWidget
 
 from recipes.models import Recipe, Tag
 
 
-class RecipeFilter(django_filters.FilterSet):
+class RecipeFilter(filters.FilterSet):
     """A filter for Recipe instances."""
 
-    author = django_filters.CharFilter()
-    tags = django_filters.ModelMultipleChoiceFilter(
+    author = filters.CharFilter(field_name='author__id')
+    tags = filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
         to_field_name='slug',
         queryset=Tag.objects.all()
     )
-    is_favorited = django_filters.BooleanFilter(
+    is_favorited = filters.BooleanFilter(
         method='get_favorites',
         widget=BooleanWidget()
     )
-    is_in_shopping_cart = django_filters.BooleanFilter(
+    is_in_shopping_cart = filters.BooleanFilter(
         method='get_carts',
         widget=BooleanWidget()
     )

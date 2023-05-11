@@ -75,7 +75,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).values(
             'ingredient__name',
             'ingredient__measurement_unit'
-        ).annotate(amount=models.Sum('amount'))
+        ).annotate(amount=models.Sum('amount')).order_by('ingredient__name')
         cart = (
             f'{request.user.get_full_name()} shopping list includes:\n'
         )

@@ -128,12 +128,14 @@ class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
         validated_data['author'] = self.context['request'].user
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags)
-        for data in ingredients:
-            ingredient = get_object_or_404(Ingredient, id=data['id'].id)
-            amount = data['amount']
-            RecipeIngredient.objects.create(
-                recipe=recipe, ingredient=ingredient, amount=amount
-            )
+
+        objs = [RecipeIngredient(
+            recipe=recipe,
+            ingredient=get_object_or_404(Ingredient, id=data['id'].id),
+            amount=data['amount']
+        ) for data in ingredients]
+
+        RecipeIngredient.objects.bulk_create(objs=objs)
         return recipe
 
     def update(self, instance, validated_data):

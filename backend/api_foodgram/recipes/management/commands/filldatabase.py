@@ -28,8 +28,7 @@ class Command(BaseCommand):
         logger.debug(f'Start {Ingredient.__name__} data transfer')
         try:
             objs = [
-                Ingredient.objects.create(**obj)
-                for obj in DictReader(
+                Ingredient(**obj) for obj in DictReader(
                     open('static/data/ingredients.csv', encoding='utf8')
                 )
             ]

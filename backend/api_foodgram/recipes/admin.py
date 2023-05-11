@@ -15,6 +15,7 @@ class IngredientAdmin(admin.ModelAdmin):
 
     list_display = ('name', 'measurement_unit')
     list_filter = ('name',)
+    empty_value_display = '-empty-'
 
 
 class RecipeAdmin(admin.ModelAdmin):
@@ -23,6 +24,7 @@ class RecipeAdmin(admin.ModelAdmin):
     inlines = (IngredientInline,)
     list_display = ('name', 'author', 'favorites_count')
     list_filter = ('name', 'author', 'tags')
+    empty_value_display = '-empty-'
 
     def favorites_count(self, obj):
         return obj.favorite.count()
