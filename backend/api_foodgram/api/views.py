@@ -12,7 +12,7 @@ from .serializers import (
     CreateUpdateRecipeSerializer, FavoriteOrCartRecipeSerializer,
     IngredientSerializer, RecipeSerializer, TagSerializer,
 )
-from .tools import create_destroy_instances
+from .tools import create_instance, destroy_instance
 from recipes.models import (
     Cart, Favorite, Ingredient, Recipe, RecipeIngredient, Tag,
 )
@@ -52,13 +52,21 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post', 'delete'])
     def favorite(self, request, pk=None):
-        return create_destroy_instances(
+        if request.method == 'POST':
+            return create_instance(
+                Recipe, Favorite, FavoriteOrCartRecipeSerializer, request, pk
+            )
+        return destroy_instance(
             Recipe, Favorite, FavoriteOrCartRecipeSerializer, request, pk
         )
 
     @action(detail=True, methods=['post', 'delete'])
     def shopping_cart(self, request, pk=None):
-        return create_destroy_instances(
+        if request.method == 'POST':
+            return create_instance(
+                Recipe, Cart, FavoriteOrCartRecipeSerializer, request, pk
+            )
+        return destroy_instance(
             Recipe, Cart, FavoriteOrCartRecipeSerializer, request, pk
         )
 
