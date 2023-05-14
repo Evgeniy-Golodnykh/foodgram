@@ -23,9 +23,7 @@ def create_follow(
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-def destroy_follow(
-        user_model, follow_model, request, id
-):
+def destroy_follow(user_model, follow_model, request, id):
     author = get_object_or_404(user_model, id=id)
     if author == request.user:
         return Response(status=status.HTTP_400_BAD_REQUEST)
