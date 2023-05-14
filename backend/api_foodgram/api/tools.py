@@ -21,9 +21,7 @@ def create_instance(
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-def destroy_instance(
-        base_model, instance_model, instance_serializer, request, pk
-):
+def destroy_instance(base_model, instance_model, request, pk):
     recipe = get_object_or_404(base_model, pk=pk)
     instance = instance_model.objects.filter(
         recipe=recipe,

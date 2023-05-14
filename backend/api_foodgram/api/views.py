@@ -54,9 +54,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return create_instance(
                 Recipe, Favorite, FavoriteOrCartRecipeSerializer, request, pk
             )
-        return destroy_instance(
-            Recipe, Favorite, FavoriteOrCartRecipeSerializer, request, pk
-        )
+        return destroy_instance(Recipe, Favorite, request, pk)
 
     @action(detail=True, methods=['post', 'delete'])
     def shopping_cart(self, request, pk=None):
@@ -64,9 +62,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return create_instance(
                 Recipe, Cart, FavoriteOrCartRecipeSerializer, request, pk
             )
-        return destroy_instance(
-            Recipe, Cart, FavoriteOrCartRecipeSerializer, request, pk
-        )
+        return destroy_instance(Recipe, Cart, request, pk)
 
     @action(
         detail=False,

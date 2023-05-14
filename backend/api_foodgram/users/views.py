@@ -1,11 +1,9 @@
 from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.response import Response
 
 from .serializers import CustomUserSerializer, FollowSerializer
+from .tools import create_follow, destroy_follow
 from users.models import Follow
 
 User = get_user_model()
@@ -26,15 +24,6 @@ class CustomUserViewSet(UserViewSet):
 
     @action(detail=True, methods=['post', 'delete'])
     def subscribe(self, request, id=None):
-        author = get_object_or_404(User, id=id)
-        if author == request.user:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        flag = Follow.objects.filter(author=author, user=request.user).exists()
-        if request.method == 'DELETE' and flag:
-            Follow.objects.filter(author=author, user=request.user).delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        if request.method == 'POST' and not flag:
-            follow = Follow.objects.create(author=author, user=request.user)
-            serializer = FollowSerializer(follow)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        if request.method == 'POST':
+            return create_follow(User, Follow, FollowSerializer, request, id)
+        return destroy_follow(User, Follow, request, id)
