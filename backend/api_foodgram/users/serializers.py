@@ -25,7 +25,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request', False)
-        return obj.following.filter(user=request.user).exists()
+        return obj.follower.filter(user=request.user).exists()
 
 
 class CustomUserCreateSerializer(serializers.ModelSerializer):
@@ -92,7 +92,7 @@ class FollowSerializer(serializers.ModelSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        return obj.following.filter(user=self.request.user).exists()
+        return obj.follower.filter(user=self.request.user).exists()
 
     def get_recipes(self, obj):
         queryset = Recipe.objects.filter(author=obj.author)
