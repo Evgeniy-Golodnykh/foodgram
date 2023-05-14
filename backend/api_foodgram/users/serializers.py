@@ -47,10 +47,6 @@ class CustomUserCreateSerializer(serializers.ModelSerializer):
     def validate_username(self, value):
         if value.lower() == 'me':
             raise serializers.ValidationError('Please choose another username')
-        if len(value) > 150:
-            raise serializers.ValidationError(
-                'Username must be less than 150 characters'
-            )
         return value
 
     def create(self, validated_data):

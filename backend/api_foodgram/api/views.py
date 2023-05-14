@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.db import models
 from django.http import HttpResponse
 from rest_framework import filters, permissions, status, viewsets
@@ -93,7 +91,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             f'{ingredient["ingredient__measurement_unit"]}'
             for ingredient in ingredients
         ])
-        filename = f'Shopping_cart_{datetime.today():%Y-%m-%d_%H:%M}.txt'
+        filename = 'Shopping_list.txt'
         response = HttpResponse(cart, content_type='text/plain')
         response['Content-Disposition'] = f'attachment; filename={filename}'
         return response

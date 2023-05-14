@@ -1,16 +1,24 @@
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 
 
 class User(AbstractUser):
     """Custom User model."""
 
-    class Roles(models.TextChoices):
-        """Roles for custom User model."""
+    ADMIN = 'admin'
+    USER = 'user'
+    ROLES = (
+        (ADMIN, 'admin'),
+        (USER, 'user'),
+    )
 
-        ADMIN = 'admin'
-        USER = 'user'
-
+    username = models.CharField(
+        max_length=150,
+        unique=True,
+        verbose_name='Username',
+        validators=[UnicodeUsernameValidator]
+    )
     email = models.EmailField(
         max_length=254,
         unique=True,
@@ -26,10 +34,13 @@ class User(AbstractUser):
     )
     role = models.CharField(
         max_length=5,
-        choices=Roles.choices,
-        default=Roles.USER,
+        choices=ROLES,
+        default=USER,
         verbose_name='Role'
     )
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'email', 'first_name', 'last_name']
 
     class Meta:
         verbose_name = 'User'
