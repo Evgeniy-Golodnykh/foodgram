@@ -79,7 +79,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request is None or request.user.is_anonymous:
             return False
-        return (request and obj.cart.filter(user=request.user).exists())
+        return obj.cart.filter(user=request.user).exists()
 
 
 class CreateUpdateRecipeSerializer(serializers.ModelSerializer):
