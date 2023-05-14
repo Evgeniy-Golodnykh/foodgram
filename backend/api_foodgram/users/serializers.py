@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
-from .models import Follow
 from recipes.models import Recipe
 
 User = get_user_model()
@@ -25,10 +24,8 @@ class CustomUserSerializer(serializers.ModelSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        request = self.context.get('request')
-        if request is None or request.user.is_anonymous:
-            return False
-        return Follow.objects.filter(author=obj, user=request.user).exists()
+        request = self.context.get('request', False)
+        return obj.following.filter(user=request.user).exists()
 
 
 class CustomUserCreateSerializer(serializers.ModelSerializer):
@@ -95,7 +92,7 @@ class FollowSerializer(serializers.ModelSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        return Follow.objects.filter(author=obj.author, user=obj.user).exists()
+        return obj.following.filter(user=self.request.user).exists()
 
     def get_recipes(self, obj):
         queryset = Recipe.objects.filter(author=obj.author)
