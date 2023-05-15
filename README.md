@@ -11,7 +11,3 @@ Evgeniy Golodnykh
 
 ### CI/CD pipeline status
 ![Foodgram workflow](https://github.com/Evgeniy-Golodnykh/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
-
-### For review
-login: admin  
-password: admin
